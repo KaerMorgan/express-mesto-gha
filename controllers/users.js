@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const NotFoundError = require("../errors/NotFoundError");
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
@@ -24,12 +25,23 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  const { id } = req.params;
-  User.findById(id)
-    .then((user) => res.send({ data: user }))
+  User.findById(req.params.id)
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+        return;
+      }
+      console.log(user);
+      throw new NotFoundError(`Пользователь не найден`);
+    })
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(404).send({ message: `Пользователь не найден` });
+      console.log(err);
+      if (
+        err.name === "CastError" ||
+        err.name === "ValidationError" ||
+        err instanceof NotFoundError
+      ) {
+        res.status(404).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });

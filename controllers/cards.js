@@ -1,4 +1,5 @@
 const Card = require("../models/card");
+const NotFoundError = require("../errors/NotFoundError");
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
@@ -44,14 +45,19 @@ module.exports.putLike = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      res.send(card);
+      if (card) {
+        res.send(card);
+        return;
+      }
+      console.log(card);
+      throw new NotFoundError(`Карточка не найдена`);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: `Введены неправильные данные` });
         return;
-      } else if (err.name === "CastError") {
-        res.status(404).send({ message: `Пользователь не найден` });
+      } else if (err.name === "CastError" || err instanceof NotFoundError) {
+        res.status(404).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });
@@ -65,14 +71,19 @@ module.exports.deleteLike = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      res.send(card);
+      if (card) {
+        res.send(card);
+        return;
+      }
+      console.log(card);
+      throw new NotFoundError(`Карточка не найдена`);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: `Введены неправильные данные` });
         return;
-      } else if (err.name === "CastError") {
-        res.status(404).send({ message: `Пользователь не найден` });
+      } else if (err.name === "CastError" || err instanceof NotFoundError) {
+        res.status(404).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });
