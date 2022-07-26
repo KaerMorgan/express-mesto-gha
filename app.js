@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 app.use("*", (req, res) => {
-  res.status(404).send("Такой страницы не существует!");
+  res.status(404).send({ message: "Такой страницы не существует!" });
 });
 
 async function main() {

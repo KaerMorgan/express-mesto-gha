@@ -36,12 +36,11 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      if (
-        err.name === "CastError" ||
-        err.name === "ValidationError" ||
-        err instanceof NotFoundError
-      ) {
+      if (err.name === "ValidationError" || err instanceof NotFoundError) {
         res.status(404).send({ message: `Ошибка: ${err.message}` });
+        return;
+      } else if (err.name === "CastError") {
+        res.status(400).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });

@@ -27,10 +27,20 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card) {
+        res.send({ data: card });
+        return;
+      }
+      throw new NotFoundError(`Карточка не найдена`);
+    })
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(404).send({ message: `Карточка не найдена` });
+      console.log(err);
+      if (err.name === "ValidationError" || err instanceof NotFoundError) {
+        res.status(404).send({ message: `Ошибка: ${err.message}` });
+        return;
+      } else if (err.name === "CastError") {
+        res.status(400).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });
@@ -49,15 +59,17 @@ module.exports.putLike = (req, res) => {
         res.send(card);
         return;
       }
-      console.log(card);
       throw new NotFoundError(`Карточка не найдена`);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: `Введены неправильные данные` });
         return;
-      } else if (err.name === "CastError" || err instanceof NotFoundError) {
+      } else if (err instanceof NotFoundError) {
         res.status(404).send({ message: `Ошибка: ${err.message}` });
+        return;
+      } else if (err.name === "CastError") {
+        res.status(400).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });
@@ -82,8 +94,11 @@ module.exports.deleteLike = (req, res) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: `Введены неправильные данные` });
         return;
-      } else if (err.name === "CastError" || err instanceof NotFoundError) {
+      } else if (err instanceof NotFoundError) {
         res.status(404).send({ message: `Ошибка: ${err.message}` });
+        return;
+      } else if (err.name === "CastError") {
+        res.status(400).send({ message: `Ошибка: ${err.message}` });
         return;
       }
       res.status(500).send({ message: `Ошибка: ${err.message}` });
