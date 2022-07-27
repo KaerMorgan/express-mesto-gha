@@ -1,13 +1,22 @@
 const Card = require("../models/card");
 const NotFoundError = require("../errors/NotFoundError");
 
+function checkError(err, res) {
+  if (err instanceof NotFoundError) {
+    res.status(404).send({ message: `Ошибка: карточка не найдена` });
+    return;
+  } else if (err.name === "CastError" || err.name === "ValidationError") {
+    res.status(400).send({ message: `Ошибка: некорректный запрос` });
+    return;
+  }
+  res.status(500).send({ message: `Ошибка: ${err.message}` });
+  console.log(err.name, err.message);
+}
+
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      res.status(500).send({ message: `Ошибка: ${err.message}` });
-      console.log(err.name, err.message);
-    });
+    .catch((err) => checkError(err, res));
 };
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
@@ -15,37 +24,16 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner: _id })
     .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: `Введены неправильные данные` });
-        return;
-      }
-      res.status(500).send({ message: `Ошибка: ${err.message}` });
-      console.log(err.name, err.message);
-    });
+    .catch((err) => checkError(err, res));
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (card) {
-        res.send({ data: card });
-        return;
-      }
+    .orFail((err) => {
       throw new NotFoundError(`Карточка не найдена`);
     })
-    .catch((err) => {
-      console.log(err);
-      if (err.name === "ValidationError" || err instanceof NotFoundError) {
-        res.status(404).send({ message: `Ошибка: ${err.message}` });
-        return;
-      } else if (err.name === "CastError") {
-        res.status(400).send({ message: `Ошибка: ${err.message}` });
-        return;
-      }
-      res.status(500).send({ message: `Ошибка: ${err.message}` });
-      console.log(err.name, err.message);
-    });
+    .then((card) => res.send({ data: card }))
+    .catch((err) => checkError(err, res));
 };
 
 module.exports.putLike = (req, res) => {
@@ -54,27 +42,11 @@ module.exports.putLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .then((card) => {
-      if (card) {
-        res.send(card);
-        return;
-      }
+    .orFail((err) => {
       throw new NotFoundError(`Карточка не найдена`);
     })
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: `Введены неправильные данные` });
-        return;
-      } else if (err instanceof NotFoundError) {
-        res.status(404).send({ message: `Ошибка: ${err.message}` });
-        return;
-      } else if (err.name === "CastError") {
-        res.status(400).send({ message: `Ошибка: ${err.message}` });
-        return;
-      }
-      res.status(500).send({ message: `Ошибка: ${err.message}` });
-      console.log(err.name, err.message);
-    });
+    .then((card) => res.send({ data: card }))
+    .catch((err) => checkError(err, res));
 };
 module.exports.deleteLike = (req, res) => {
   Card.findByIdAndUpdate(
@@ -82,26 +54,9 @@ module.exports.deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then((card) => {
-      if (card) {
-        res.send(card);
-        return;
-      }
-      console.log(card);
+    .orFail((err) => {
       throw new NotFoundError(`Карточка не найдена`);
     })
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: `Введены неправильные данные` });
-        return;
-      } else if (err instanceof NotFoundError) {
-        res.status(404).send({ message: `Ошибка: ${err.message}` });
-        return;
-      } else if (err.name === "CastError") {
-        res.status(400).send({ message: `Ошибка: ${err.message}` });
-        return;
-      }
-      res.status(500).send({ message: `Ошибка: ${err.message}` });
-      console.log(err.name, err.message);
-    });
+    .then((card) => res.send({ data: card }))
+    .catch((err) => checkError(err, res));
 };

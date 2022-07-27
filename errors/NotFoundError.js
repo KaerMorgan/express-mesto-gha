@@ -1,4 +1,4 @@
-class ErrorNotFound extends Error {
+class NotFoundError extends Error {
   constructor(message) {
     super(message);
     this.errorMessage = message;
@@ -6,4 +6,4 @@ class ErrorNotFound extends Error {
   }
 }
 
-module.exports = ErrorNotFound;
+module.exports = NotFoundError;
