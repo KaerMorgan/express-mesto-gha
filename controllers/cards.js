@@ -18,10 +18,10 @@ module.exports.getAllCards = (req, res) => {
     .then((cards) => res.send({ data: cards }))
     .catch((err) => checkError(err, res));
 };
+
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const { _id } = req.user;
-
   Card.create({ name, link, owner: _id })
     .then((card) => res.send({ data: card }))
     .catch((err) => checkError(err, res));
@@ -48,6 +48,7 @@ module.exports.putLike = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => checkError(err, res));
 };
+
 module.exports.deleteLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
