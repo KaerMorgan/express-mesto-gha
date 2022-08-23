@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
+const { login, createUser } = require("./controllers/users");
 // Устранение уязвимостей в http заголовках
 const helmet = require("helmet");
 
@@ -19,12 +19,9 @@ const app = express();
 
 app.use(limiter);
 app.use(helmet());
-app.use((req, res, next) => {
-  req.user = {
-    _id: "62dd54d46524ffde64695dab",
-  };
-  next();
-});
+
+app.post("/signin", express.json(), login);
+app.post("/signup", express.json(), createUser);
 
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
@@ -32,6 +29,14 @@ app.use("/cards", require("./routes/cards"));
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Такой страницы не существует!" });
 });
+
+// app.use((err, req, res, next) => {
+//   const { statusCode = 500, message } = err;
+
+//   res.status(statusCode).send({
+//     message: statusCode === 500 ? "На сервере произошла ошибка" : message,
+//   });
+// });
 
 async function main() {
   await mongoose.connect(
