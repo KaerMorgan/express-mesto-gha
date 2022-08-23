@@ -1,6 +1,10 @@
 const express = require("express");
+const { celebrate, Joi } = require("celebrate");
+const { avatarValidation, userInfoValidation } = require("../middlewares/joi");
+
 const router = express.Router();
 const {
+  getMe,
   getAllUsers,
   createUser,
   getUserById,
@@ -9,8 +13,9 @@ const {
 } = require("../controllers/users");
 
 router.get("/", getAllUsers); // get all users
+router.get("/me", getMe); // get info about me
 router.get("/:id", getUserById); // get user by id
-router.patch("/me", express.json(), changeUserInfo); // change user name and occupation
-router.patch("/me/avatar", express.json(), changeAvatar); // change user avatar
+router.patch("/me", userInfoValidation, changeUserInfo); // change user name and occupation
+router.patch("/me/avatar", avatarValidation, changeAvatar); // change user avatar
 
 module.exports = router;

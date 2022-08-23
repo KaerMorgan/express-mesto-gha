@@ -15,6 +15,8 @@ function checkError(err, res) {
   console.log(err.name, err.message);
 }
 
+module.exports.getMe = () => {};
+
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { cardValidation } = require("../middlewares/joi");
 
 const {
   getAllCards,
@@ -10,7 +11,7 @@ const {
 } = require("../controllers/cards");
 
 router.get("/", getAllCards);
-router.post("/", express.json(), createCard);
+router.post("/", cardValidation, createCard);
 router.delete("/:cardId", deleteCard);
 router.put("/:cardId/likes", putLike);
 router.delete("/:cardId/likes", deleteLike);
