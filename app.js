@@ -1,14 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const auth = require("./middlewares/auth");
+
 const { errors } = require("celebrate");
 const { login, createUser } = require("./controllers/users");
 const {
   registrationValidation,
   loginValidation,
 } = require("./middlewares/joi");
-
-// const { errors } = require('celebrate');
 
 // Устранение уязвимостей в http заголовках
 const helmet = require("helmet");
@@ -34,6 +34,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post("/signin", registrationValidation, login);
 app.post("/signup", loginValidation, createUser);
 
+app.use(auth);
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
@@ -43,13 +44,13 @@ app.use("*", (req, res) => {
 
 app.use(errors()); // обработчик ошибок celebrate
 
-// app.use((err, req, res, next) => {
-//   const { statusCode = 500, message } = err;
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
 
-//   res.status(statusCode).send({
-//     message: statusCode === 500 ? "На сервере произошла ошибка" : message,
-//   });
-// });
+  res.status(statusCode).send({
+    message: statusCode === 500 ? "На сервере произошла ошибка" : message,
+  });
+});
 
 async function main() {
   await mongoose.connect(
