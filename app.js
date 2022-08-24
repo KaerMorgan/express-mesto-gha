@@ -30,8 +30,8 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post("/signin", registrationValidation, login);
-app.post("/signup", loginValidation, createUser);
+app.post("/signin", loginValidation, login);
+app.post("/signup", registrationValidation, createUser);
 
 app.use(auth);
 app.use("/users", require("./routes/users"));
