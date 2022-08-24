@@ -1,4 +1,6 @@
 const { celebrate, Joi } = require("celebrate");
+const urlRegExp =
+  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm;
 
 const registrationValidation = celebrate({
   body: Joi.object().keys({
@@ -6,7 +8,7 @@ const registrationValidation = celebrate({
     password: Joi.string().required().min(8),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().pattern(urlRegExp),
   }),
 });
 
@@ -19,14 +21,14 @@ const loginValidation = celebrate({
 
 const avatarValidation = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().pattern(urlRegExp),
   }),
 });
 
 const cardValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().uri().required(),
+    link: Joi.string().pattern(urlRegExp).required(),
   }),
 });
 
