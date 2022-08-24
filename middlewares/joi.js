@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require("celebrate");
 const urlRegExp =
-  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm;
+  /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/m;
 
 const registrationValidation = celebrate({
   body: Joi.object().keys({
