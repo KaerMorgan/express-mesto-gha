@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    throw new AuthorizationError("Неправильные почта или пароль");
+    next(new AuthorizationError("Необходима авторизация"));
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -17,8 +17,7 @@ module.exports = (req, res, next) => {
       "cbf66f1d02fceddb90e1e080cfcf7fbcb6810b596a5dbec3f4d8abf323a9240d"
     );
   } catch (err) {
-    console.log("Ошибка функции аутентификации", err);
-    return res.status(401).send({ message: "Необходима авторизация" });
+    next(new AuthorizationError("Неправильные почта или пароль"));
   }
   req.user = payload;
   next();

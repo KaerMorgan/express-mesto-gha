@@ -3,36 +3,39 @@ const bcrypt = require("bcryptjs");
 const NotFoundError = require("../errors/NotFoundError");
 const jwt = require("jsonwebtoken");
 
-function checkError(err, res) {
-  if (err instanceof NotFoundError) {
-    res.status(404).send({ message: `Ошибка: пользователь не найден` });
-    return;
-  } else if (err.name === "CastError" || err.name === "ValidationError") {
-    res.status(400).send({ message: `Ошибка: некорректный запрос` });
-    return;
-  }
-  res.status(500).send({ message: `Ошибка: ${err.message}` });
-  console.log(err.name, err.message);
-}
+// function checkError(err, res) {
+//   if (err instanceof NotFoundError) {
+//     res.status(404).send({ message: `Ошибка: пользователь не найден` });
+//     return;
+//   } else if (err.name === "CastError" || err.name === "ValidationError") {
+//     res.status(400).send({ message: `Ошибка: некорректный запрос` });
+//     return;
+//   }
+//   res.status(500).send({ message: `Ошибка: ${err.message}` });
+//   console.log(err.name, err.message);
+// }
 
-module.exports.getMe = () => {};
+module.exports.getMe = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => next(new NotFoundError(`Пользователь не найден`)))
+    .then((user) => res.send({ data: user }))
+    .catch(next);
+};
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => checkError(err, res));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail((err) => {
-      throw new NotFoundError(`Пользователь не найден`);
-    })
+    .orFail(() => next(new NotFoundError(`Пользователь не найден`)))
     .then((user) => res.send({ data: user }))
-    .catch((err) => checkError(err, res));
+    .catch(next);
 };
 
-module.exports.changeUserInfo = (req, res) => {
+module.exports.changeUserInfo = (req, res, next) => {
   const { name, about } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(
@@ -41,27 +44,34 @@ module.exports.changeUserInfo = (req, res) => {
     { new: true, runValidators: true }
   )
     .then((user) => res.send({ data: user }))
-    .catch((err) => checkError(err, res));
+    .catch(next);
 };
 
-module.exports.changeAvatar = (req, res) => {
+module.exports.changeAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
-    .catch((err) => checkError(err, res));
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
-    .then((user) => res.send(user))
-    .catch((err) => checkError(err, res));
+  User.findOne({ email }).then((user) => {
+    if (user) {
+      next(new ConflictError("Пользователь с такой почтой уже существует"));
+    }
+    bcrypt
+      .hash(password, 10)
+      .then((hash) =>
+        User.create({ name, about, avatar, email, password: hash })
+      )
+      .then((user) => res.send(user))
+      .catch(next);
+  });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -73,9 +83,8 @@ module.exports.login = (req, res) => {
           expiresIn: "7d",
         }
       );
-
       // вернём токен
       res.send({ token });
     })
-    .catch((err) => checkError(err, res));
+    .catch(next);
 };

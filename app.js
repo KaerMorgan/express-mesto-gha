@@ -12,7 +12,6 @@ const {
 
 // Устранение уязвимостей в http заголовках
 const helmet = require("helmet");
-
 // Защита от DoS-атак
 const rateLimit = require("express-rate-limit");
 const limiter = rateLimit({
@@ -43,13 +42,14 @@ app.use("*", (req, res) => {
 });
 
 app.use(errors()); // обработчик ошибок celebrate
-
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
   res.status(statusCode).send({
     message: statusCode === 500 ? "На сервере произошла ошибка" : message,
   });
+
+  // next();
 });
 
 async function main() {
