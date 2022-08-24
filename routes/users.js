@@ -18,7 +18,7 @@ const {
 
 router.get("/", getAllUsers); // get all users
 router.get("/me", getMe); // get info about me
-router.get("/:id", userIdValidation, getUserById); // get user by id
+router.get("/:userId", userIdValidation, getUserById); // get user by id
 router.patch("/me", userInfoValidation, changeUserInfo); // change user name and occupation
 router.patch("/me/avatar", avatarValidation, changeAvatar); // change user avatar
 
