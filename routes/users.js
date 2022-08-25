@@ -10,7 +10,6 @@ const router = express.Router();
 const {
   getMe,
   getAllUsers,
-  createUser,
   getUserById,
   changeUserInfo,
   changeAvatar,
