@@ -42,6 +42,23 @@ module.exports.deleteCard = (req, res, next) => {
     .catch(next);
 };
 
+// module.exports.deleteCard = (req, res, next) => {
+//   Card.findById(req.params.cardId)
+//     .then((card) => {
+//       if (!card) {
+//         next(new NotFoundError(`Карточка не найдена`));
+//       }
+//       else if (!card.owner.equals(req.user._id)) {
+//         next(new ForbiddenError("Вы не можете удалить чужую карточку"));
+//       }
+//       Card.findByIdAndRemove(req.params.cardId).then((card) =>
+//         res.send({ data: card })
+//       );
+//     })
+
+//     .catch(next);
+// };
+
 module.exports.putLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
