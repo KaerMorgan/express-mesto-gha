@@ -40,3 +40,10 @@ _DELETE_ `/cards/:cardId/likes` — убрать лайк с карточки
 
 `npm run start` — запускает сервер  
 `npm run dev` — запускает сервер с hot-reload
+
+## Публичный IP-адрес сервера и домен
+
+https://morgankatarn.nomoredomains.sbs/ - фронтенд
+https://api.morgankatarn.nomoredomains.sbs/signin - сервер
+
+51.250.78.39 - ip
