@@ -1,6 +1,5 @@
 {
   "name": "express-mesto-gha",
-  "homepage": "http://api.morgankatarn.nomoredomains.sbs",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
